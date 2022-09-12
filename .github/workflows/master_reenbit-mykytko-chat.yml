@@ -23,8 +23,8 @@ jobs:
           include-prerelease: true
           
       - name: Install dependencies
-        run: dotnet restore
-
+        run:  dotnet add package Microsoft.EntityFrameworkCore && dotnet add package Microsoft.EntityFrameworkCore.SqlServer && dotnet add package Microsoft.Azure.SignalR && dotnet add package Microsoft.AspNetCore.SpaProxy && dotnet add package Azure.Security.KeyVault.Secrets
+ 
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
