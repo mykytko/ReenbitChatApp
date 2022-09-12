@@ -1,3 +1,5 @@
+using ReenbitChatApp.EFL;
+
 namespace ReenbitChat.EFL;
 
 public class Chat

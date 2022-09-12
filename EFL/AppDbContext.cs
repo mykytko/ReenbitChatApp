@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using ReenbitChat.EFL;
 
-namespace ReenbitChat.EFL;
+namespace ReenbitChatApp.EFL;
 
 public class AppDbContext : DbContext
 {

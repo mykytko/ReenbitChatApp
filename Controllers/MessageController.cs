@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ReenbitChat.EFL;
+using ReenbitChatApp.EFL;
 
-namespace ReenbitChat.Controllers;
+namespace ReenbitChatApp.Controllers;
 
 [ApiController]
 [Route("[controller]")]

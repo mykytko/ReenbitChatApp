@@ -1,6 +1,7 @@
 using ReenbitChat.EFL;
+using ReenbitChatApp.EFL;
 
-namespace ReenbitChat;
+namespace ReenbitChatApp;
 
 public static class PopulateDatabaseService
 {

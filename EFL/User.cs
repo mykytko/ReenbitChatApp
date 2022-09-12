@@ -1,4 +1,4 @@
-namespace ReenbitChat.EFL;
+namespace ReenbitChatApp.EFL;
 
 public class User
 {
