@@ -9,21 +9,17 @@ export class FetchDataComponent {
   public forecasts: Message[] = [];
 
   constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
-    http.get<Message[]>(baseUrl + 'message').subscribe(result => {
+    console.log(baseUrl + 'message/get')
+    http.get<Message[]>(baseUrl + 'message/get').subscribe(result => {
       this.forecasts = result;
     }, error => console.error(error));
   }
 }
 
-interface User {
-  id: number;
-  login: string;
-  password: string;
-}
-
 interface Message {
-  id: number;
-  user: User;
+  messageId: number;
+  userId: number;
   text: string;
-  datetime: Date;
+  dateTime: Date;
+  chatId: number;
 }

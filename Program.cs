@@ -2,16 +2,14 @@ using Azure.Core;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using ReenbitChatApp;
 using ReenbitChatApp.EFL;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllersWithViews();
-
-var app = builder.Build();
 
 // Set up KeyVault access
 var clientOptions = new SecretClientOptions
@@ -30,12 +28,21 @@ var client = new SecretClient(new Uri(vaultUri), new DefaultAzureCredential(new 
     { ManagedIdentityClientId = keyVault["ManagedIdentityClientId"]}), clientOptions);
 var connString = client.GetSecret("ChatDbConnection").Value.Value;
 
-// Populate the database if needed
-var options = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(connString).Options;
-PopulateDatabaseService.Populate(new AppDbContext(options));
-
-// Set up DbContext pooling
+// Set up DbContextPool
 builder.Services.AddDbContextPool<AppDbContext>(o => o.UseSqlServer(connString));
+
+// Initialize database
+// DbInitializer.Initialize(connString);
+
+builder.Services.AddCors(corsOptions =>
+{
+    corsOptions.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin();
+    });
+});
+
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -48,9 +55,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
+app.UseCors();
+
+app.MapControllers();
 
 app.MapFallbackToFile("index.html");
 

@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ReenbitChat.EFL;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ReenbitChatApp.EFL;
 
 namespace ReenbitChatApp.Controllers;
 
-[ApiController]
-[Route("[controller]")]
 public class MessageController : ControllerBase
 {
     private readonly AppDbContext _appDbContext;
@@ -14,10 +13,11 @@ public class MessageController : ControllerBase
     {
         _appDbContext = appDbContext;
     }
-
-    [HttpGet]
-    public IEnumerable<Message> Get()
+    
+    [HttpGet, Route(""), Route("message"), Route("message/get")]
+    public IActionResult Get()
     {
-        return _appDbContext.Chats.First().Messages.Select(m => _appDbContext.Messages.Find(m.Id)!);
+        return Ok(_appDbContext.Chats.Include(c => c.Messages).First()
+            .Messages.AsEnumerable());
     }
 }

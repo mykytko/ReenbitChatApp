@@ -15,10 +15,11 @@
   </thead>
   <tbody>
     <tr *ngFor="let forecast of forecasts">
-      <td>{{ forecast.id }}</td>
-      <td>{{ forecast.user.login }}</td>
+      <td>{{ forecast.messageId }}</td>
+      <td>{{ forecast.userId }}</td>
       <td>{{ forecast.text }}</td>
-      <td>{{ forecast.datetime }}</td>
+      <td>{{ forecast.dateTime }}</td>
+      <td>{{ forecast.chatId }}</td>
     </tr>
   </tbody>
 </table>
