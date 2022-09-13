@@ -1,0 +1,37 @@
+.notification {
+  border-radius: 0.5em;
+  width: 1em;
+  height: 1em;
+  background-color: #ff0000;
+  right: 30px;
+  top: 43%;
+  position: absolute;
+}
+
+.block {
+  background-color: #1d8bfa;
+  width: 30%;
+  margin-top: 7px;
+  margin-bottom: 7px;
+  margin-left: 1em;
+  border-radius: 5px;
+  padding: 5px 10px;
+  position: relative;
+  box-shadow: #1861ac 4px 4px;
+}
+
+.block-active {
+  background-color: #1a6ab9;
+}
+
+.text {
+  width: 85%;
+}
+
+.chat-name {
+  font-weight: bold;
+}
+
+.sender-name {
+  font-style: italic;
+}

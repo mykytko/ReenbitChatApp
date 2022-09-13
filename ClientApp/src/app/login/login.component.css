@@ -1,0 +1,8 @@
+.form-group {
+  margin: 1em auto;
+  max-width: 35%;
+}
+
+.alert.alert-success > .btn.btn-primary.btn-block {
+  margin-left: 1em;
+}

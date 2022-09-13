@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ReenbitChatApp.EFL;
@@ -14,7 +14,7 @@ public class MessageController : ControllerBase
         _appDbContext = appDbContext;
     }
     
-    [HttpGet, Route(""), Route("message"), Route("message/get")]
+    [HttpGet, Route(""), Route("message"), Route("message/get"), Authorize]
     public IActionResult Get()
     {
         return Ok(_appDbContext.Chats.Include(c => c.Messages).First()

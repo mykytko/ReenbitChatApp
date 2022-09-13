@@ -1,9 +1,15 @@
+using System.Text;
 using Azure.Core;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.Tokens;
 using ReenbitChatApp;
+using ReenbitChatApp.Controllers;
 using ReenbitChatApp.EFL;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,8 +45,28 @@ builder.Services.AddCors(corsOptions =>
     corsOptions.AddDefaultPolicy(policy =>
     {
         policy.AllowAnyOrigin();
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
     });
 });
+
+var jwtSection = builder.Configuration.GetSection("Jwt");
+builder.Services.Add(ServiceDescriptor.Singleton(new AuthOptions(jwtSection)));
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            
+            ValidIssuer = jwtSection["Issuer"],
+            ValidAudience = jwtSection["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSection["Key"]))
+        };
+    });
 
 var app = builder.Build();
 
@@ -56,6 +82,9 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseCors();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

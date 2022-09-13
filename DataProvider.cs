@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ReenbitChat.EFL;
 using ReenbitChatApp.EFL;
@@ -8,12 +9,16 @@ public static class DataProvider
 {
     public static void Provide(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>().HasData(
-            new User {UserId = 1, Login = "mykytko", Password = "pwd1"},
-            new User {UserId = 2, Login = "lina", Password = "pwd2"},
-            new User {UserId = 3, Login = "vlad", Password = "pwd3"},
-            new User {UserId = 4, Login = "andriy", Password = "pwd4"}
-            );
+        var hasher = new PasswordHasher<User>();
+        var users = new List<User>
+        {
+            new() {UserId = 1, Login = "mykytko", Password = "password1"},
+            new() {UserId = 2, Login = "lina", Password = "password2"},
+            new() {UserId = 3, Login = "vlad", Password = "password3"},
+            new() {UserId = 4, Login = "andriy", Password = "password4"}
+        };
+        users.ForEach(u => u.Password = hasher.HashPassword(u, u.Password));
+        modelBuilder.Entity<User>().HasData(users);
         
         modelBuilder.Entity<Message>().HasData(
             new Message

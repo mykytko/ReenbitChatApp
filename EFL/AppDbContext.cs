@@ -20,7 +20,7 @@ public class AppDbContext : DbContext
         modelBuilder.HasDatabaseMaxSize("100 MB");
         modelBuilder.HasServiceTier("Basic");
         modelBuilder.HasPerformanceLevel("Basic");
-        
+
         modelBuilder.Entity<User>()
             .HasMany(u => u.Chats)
             .WithMany(c => c.Members);
