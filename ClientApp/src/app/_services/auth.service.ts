@@ -1,8 +1,6 @@
-import { Injectable } from '@angular/core'
+import {Inject, Injectable} from '@angular/core'
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { Observable } from 'rxjs'
-
-const AUTH_API = 'https://localhost:7069/api/auth/'
 
 const httpOptions = {
   headers: new HttpHeaders({'Content-Type': 'application/json'})
@@ -12,11 +10,15 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private http: HttpClient) {}
+  url: string;
+
+  constructor(private http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+    this.url = baseUrl + 'auth';
+  }
 
   public login(login: string, password: string): Observable<any> {
     return this.http.post(
-      AUTH_API + 'login',
+      this.url + '/login',
       {login, password},
       httpOptions
     );

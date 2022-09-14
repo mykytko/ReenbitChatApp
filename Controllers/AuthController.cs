@@ -18,7 +18,7 @@ public class AuthController : Controller
         _authOptions = authOptions;
     }
 
-    [HttpPost, Route("/api/auth/login")]
+    [HttpPost, Route("/auth/login")]
     public IActionResult Login([FromBody] User user)
     {
         var identity = GetIdentity(user.Login, user.Password);

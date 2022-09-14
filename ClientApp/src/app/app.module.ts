@@ -22,8 +22,8 @@ import { AuthGuardService } from "./_services/auth-guard.service"
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([
-      { path: 'login', component: LoginComponent },
       { path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuardService] },
+      { path: 'login', component: LoginComponent },
       { path: '**', redirectTo: ''}
     ])
   ],

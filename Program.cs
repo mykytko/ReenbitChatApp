@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text;
 using Azure.Core;
 using Azure.Identity;
@@ -32,7 +31,6 @@ var env = builder.Configuration.GetSection("EnvironmentKeys");
 Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", env["ClientId"]);
 Environment.SetEnvironmentVariable("AZURE_TENANT_ID", env["TenantId"]);
 Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", env["ClientSecret"]);
-Console.WriteLine(env["ClientId"] + " " + env["TenantId"] + " " + env["ClientSecret"]);
 var client = new SecretClient(new Uri(vaultUri), new DefaultAzureCredential(new DefaultAzureCredentialOptions
 {
     ManagedIdentityClientId = clientId
