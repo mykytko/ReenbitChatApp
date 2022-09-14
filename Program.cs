@@ -1,14 +1,11 @@
+using System.Diagnostics;
 using System.Text;
 using Azure.Core;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
-using ReenbitChatApp;
 using ReenbitChatApp.Controllers;
 using ReenbitChatApp.EFL;
 
@@ -22,7 +19,7 @@ var clientOptions = new SecretClientOptions
 {
     Retry =
     {
-        Delay= TimeSpan.FromSeconds(2),
+        Delay = TimeSpan.FromSeconds(2),
         MaxDelay = TimeSpan.FromSeconds(16),
         MaxRetries = 5,
         Mode = RetryMode.Exponential
@@ -30,8 +27,16 @@ var clientOptions = new SecretClientOptions
 };
 var keyVault = builder.Configuration.GetSection("KeyVault");
 var vaultUri = keyVault["VaultUri"];
-var client = new SecretClient(new Uri(vaultUri), new DefaultAzureCredential(new DefaultAzureCredentialOptions 
-    { ManagedIdentityClientId = keyVault["ManagedIdentityClientId"]}), clientOptions);
+var clientId = keyVault["ManagedIdentityClientId"];
+var env = builder.Configuration.GetSection("EnvironmentKeys");
+Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", env["ClientId"]);
+Environment.SetEnvironmentVariable("AZURE_TENANT_ID", env["TenantId"]);
+Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", env["ClientSecret"]);
+Console.WriteLine(env["ClientId"] + " " + env["TenantId"] + " " + env["ClientSecret"]);
+var client = new SecretClient(new Uri(vaultUri), new DefaultAzureCredential(new DefaultAzureCredentialOptions
+{
+    ManagedIdentityClientId = clientId
+}), clientOptions);
 var connString = client.GetSecret("ChatDbConnection").Value.Value;
 
 // Set up DbContextPool
