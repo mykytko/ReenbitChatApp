@@ -1,4 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
+import {SignalrService} from "../_services/signalr.service";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {StorageService} from "../_services/storage.service";
 
 @Component({
   selector: 'app-home',
@@ -6,27 +9,39 @@ import {Component, OnInit} from '@angular/core';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  blocks: Block[] = [{ chatName: 'gaymers', lastMessageSender: 'mykytko',
+  blocks: Block[] = [{ chatName: 'group chat', lastMessageSender: 'mykytko',
     lastMessageText: 'hello gays', isNew: true},
-    { chatName: 'non-gaymers', lastMessageSender: 'oleh',
+    { chatName: 'personal chat', lastMessageSender: 'oleh',
       lastMessageText: 'hello straights and everyone who is not gay;', isNew: false}];
   selectedChat: string = "";
+  url: string;
+
+  constructor(private signalrService: SignalrService, private http: HttpClient, @Inject('BASE_URL') baseUrl: string, private storageService: StorageService) {
+    this.url = baseUrl;
+  }
 
   ngOnInit() {
-    // do SignalR magic
+    this.signalrService.addBroadcastMessagesListener();
   }
 
   openChat(chatName: string) {
     this.selectedChat = chatName;
+    this.signalrService.requestMessages(chatName);
+    this.http.get(this.url + 'message/get?connectionId=' + this.signalrService.getConnectionId()
+      + '&skip=' + 0 + '&chatName=' + this.selectedChat,
+      {
+        headers: new HttpHeaders({'Authentication': 'Bearer ' + this.storageService.getToken()})
+      }
+    );
     // display chat's messages and prompt
   }
 
 
 }
 
-class Block {
-  chatName: string = "";
-  lastMessageSender: string = "";
-  lastMessageText: string = "";
-  isNew: boolean = false;
+interface Block {
+  chatName: string;
+  lastMessageSender: string;
+  lastMessageText: string;
+  isNew: boolean;
 }

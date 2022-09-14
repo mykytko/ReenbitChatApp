@@ -141,6 +141,9 @@ public static class DataProvider
                 UserId = 4
             });
 
-        modelBuilder.Entity<Chat>().HasData(new Chat {ChatId = 1}, new Chat {ChatId = 2});
+        modelBuilder.Entity<Chat>().HasData(
+            new Chat {ChatId = 1, ChatName = "group chat"}, 
+            new Chat {ChatId = 2, ChatName = "personal chat"}
+            );
     }
 }

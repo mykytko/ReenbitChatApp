@@ -5,6 +5,7 @@ using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using ReenbitChatApp;
 using ReenbitChatApp.Controllers;
 using ReenbitChatApp.EFL;
 
@@ -42,6 +43,8 @@ builder.Services.AddDbContextPool<AppDbContext>(o => o.UseSqlServer(connString))
 
 // Initialize database
 // DbInitializer.Initialize(connString);
+
+builder.Services.AddSignalR().AddAzureSignalR(env["SignalrConnectionString"]);
 
 builder.Services.AddCors(corsOptions =>
 {
@@ -90,6 +93,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ChatHub>("/chat");
+});
 
 app.MapFallbackToFile("wwwroot/index.html");
 
