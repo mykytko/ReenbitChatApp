@@ -129,5 +129,7 @@
       }
     }
   },
-  "defaultProject": "ReenbitChatApp"
+  "cli": {
+    "analytics": "71c9a733-c35e-43ef-8364-17e708ca593f"
+  }
 }
