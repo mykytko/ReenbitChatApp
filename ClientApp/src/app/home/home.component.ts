@@ -15,28 +15,38 @@ export class HomeComponent implements OnInit {
       lastMessageText: 'hello straights and everyone who is not gay;', isNew: false}];
   selectedChat: string = "";
   url: string;
+  messageText: string = "";
 
-  constructor(private signalrService: SignalrService, private http: HttpClient, @Inject('BASE_URL') baseUrl: string, private storageService: StorageService) {
+  constructor(public signalrService: SignalrService, private http: HttpClient, @Inject('BASE_URL') baseUrl: string, private storageService: StorageService) {
     this.url = baseUrl;
   }
 
   ngOnInit() {
     this.signalrService.addBroadcastMessagesListener();
+    this.signalrService.addBroadcastMessageListener();
+
+    let sendButton = document.getElementById("message-text");
+    sendButton!.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("send")!.click();
+      }
+    });
   }
 
   openChat(chatName: string) {
     this.selectedChat = chatName;
     this.signalrService.requestMessages(chatName);
-    this.http.get(this.url + 'message/get?connectionId=' + this.signalrService.getConnectionId()
-      + '&skip=' + 0 + '&chatName=' + this.selectedChat,
-      {
-        headers: new HttpHeaders({'Authentication': 'Bearer ' + this.storageService.getToken()})
-      }
-    );
-    // display chat's messages and prompt
   }
 
+  sendMessage() {
+    if (this.selectedChat === undefined || this.selectedChat === '' || this.messageText === '') {
+      return;
+    }
 
+    this.signalrService.sendMessage(this.selectedChat, this.messageText);
+    this.messageText = '';
+  }
 }
 
 interface Block {

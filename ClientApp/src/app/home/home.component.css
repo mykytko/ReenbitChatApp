@@ -1,3 +1,8 @@
+.wrapper {
+  display: flex;
+  flex-flow: row;
+}
+
 .notification {
   border-radius: 0.5em;
   width: 1em;
@@ -8,9 +13,41 @@
   position: absolute;
 }
 
+.chat-list {
+  width: 30%;
+}
+
+.chat-window {
+  width: 65%;
+  max-height: 87%;
+  height: 87%;
+  position: absolute;
+  right: 1em;
+}
+
+.username, .date {
+  font-style: italic;
+}
+
+.username {
+  font-weight: bold;
+}
+
+.message {
+  background-color: #0d6efd;
+  border-radius: 8px;
+  margin: 3px;
+  padding: 3px;
+}
+
+.date::before{
+  content: "\a";
+  white-space: pre;
+}
+
 .block {
   background-color: #1d8bfa;
-  width: 30%;
+  width: 100%;
   margin-top: 7px;
   margin-bottom: 7px;
   margin-left: 1em;
@@ -34,4 +71,29 @@
 
 .sender-name {
   font-style: italic;
+}
+
+.message-input {
+  width: 90%;
+  height: 90%;
+  margin-right: 10px;
+}
+
+.messages {
+  max-height: 90%;
+  overflow-y: scroll;
+}
+
+.message-input-inner {
+  border-width: 3px;
+  border-radius: 4px;
+  border-color: #1d8bfa;
+}
+
+.form-group {
+  width: 100%;
+  bottom: 0;
+  position: absolute;
+  display: flex;
+  flex-flow: row;
 }
