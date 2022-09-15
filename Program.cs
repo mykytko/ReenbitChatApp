@@ -1,8 +1,11 @@
 using System.Text;
+using System.Text.Json;
 using Azure.Core;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ReenbitChatApp;
@@ -71,6 +74,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwtSection["Issuer"],
             ValidAudience = jwtSection["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSection["Key"]))
+        };
+        
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var path = context.HttpContext.Request.Path;
+                if (!path.StartsWithSegments("/chat"))
+                {
+                    return Task.CompletedTask;
+                }
+                
+                var accessToken = context.Request.Query["access_token"];
+                Console.WriteLine("chat: " + accessToken);
+                context.Token = accessToken;
+
+                return Task.CompletedTask;
+            }
         };
     });
 

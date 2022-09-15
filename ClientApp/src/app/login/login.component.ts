@@ -28,14 +28,14 @@ export class LoginComponent implements OnInit {
   onSubmit() {
     this.authService.login(this.form.username, this.form.password).subscribe({
       next: response => {
-      this.storageService.saveToken(response);
-      this.isSuccessful = true;
-      this.isLoginFailed = false;
+        this.storageService.saveToken(response);
+        this.isSuccessful = true;
+        this.isLoginFailed = false;
       },
       error: () => {
-      this.isSuccessful = false;
-      this.isLoginFailed = true;
-      this.errorMessage = 'Wrong login or password';
+        this.isSuccessful = false;
+        this.isLoginFailed = true;
+        this.errorMessage = 'Wrong login or password';
       }
     });
     return;

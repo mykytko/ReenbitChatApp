@@ -1,5 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using ReenbitChat.EFL;
@@ -7,6 +9,7 @@ using ReenbitChatApp.EFL;
 
 namespace ReenbitChatApp;
 
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ChatHub : Hub
 {
     private readonly AppDbContext _appDbContext;
@@ -35,7 +38,7 @@ public class ChatHub : Hub
                 .AsEnumerable()
             ));
 
-    public async Task BroadcastMessage(string chatName, string username, string messageText)
+    public async Task BroadcastMessage(string chatName, string messageText)
     {
         var chat = _appDbContext.Chats.FirstOrDefault(c => c.ChatName == chatName);
         if (chat == null)
@@ -43,18 +46,32 @@ public class ChatHub : Hub
             return;
         }
 
+        var login = Context.User?.Identity?.Name;
+        if (login == null)
+        {
+            return;
+        }
+
+        var user = _appDbContext.Users.FirstOrDefault(u => u.Login == login);
+        if (user == null)
+        {
+            return;
+        }
+
         var now = DateTime.Now;
-        _appDbContext.Messages.Add(new Message
+        _appDbContext.Messages.Add(new Message 
         {
             ChatId = chat.ChatId,
+            UserId = user.UserId,
             Text = messageText,
             DateTime = now
         });
+        await _appDbContext.SaveChangesAsync();
 
         await Clients.All.SendAsync("BroadcastMessage", JsonSerializer.Serialize(
             new
             {
-                username,
+                username = login,
                 text = messageText,
                 date = now.ToLocalTime().ToString(CultureInfo.CurrentCulture)
             }
