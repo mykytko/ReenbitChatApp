@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ReenbitChat.EFL;
 using ReenbitChatApp.EFL;
 
 namespace ReenbitChatApp;
@@ -27,7 +26,8 @@ public static class DataProvider
                 UserId = 1,
                 Text = "bomjour",
                 DateTime = DateTime.Now - TimeSpan.FromHours(24),
-                ChatId = 1
+                ChatId = 1,
+                ReplyTo = -1
             },
             new 
             {
@@ -35,7 +35,8 @@ public static class DataProvider
                 UserId = 2,
                 Text = "yeah, hello",
                 DateTime = DateTime.Now - TimeSpan.FromHours(23),
-                ChatId = 1
+                ChatId = 1,
+                ReplyTo = 1
             },
             new
             {
@@ -43,7 +44,8 @@ public static class DataProvider
                 UserId = 3,
                 Text = "how are you guys doing?",
                 DateTime = DateTime.Now - TimeSpan.FromHours(22),
-                ChatId = 1
+                ChatId = 1,
+                ReplyTo = -1
             },
             new
             {
@@ -51,7 +53,8 @@ public static class DataProvider
                 UserId = 1,
                 Text = "pretty well",
                 DateTime = DateTime.Now - TimeSpan.FromHours(21),
-                ChatId = 1
+                ChatId = 1,
+                ReplyTo = 3
             },
             new
             {
@@ -59,7 +62,8 @@ public static class DataProvider
                 UserId = 2,
                 Text = "same",
                 DateTime = DateTime.Now - TimeSpan.FromHours(20),
-                ChatId = 1
+                ChatId = 1,
+                ReplyTo = 4
             },
             new
             {
@@ -67,7 +71,8 @@ public static class DataProvider
                 UserId = 3,
                 Text = "great!",
                 DateTime = DateTime.Now - TimeSpan.FromHours(19),
-                ChatId = 1
+                ChatId = 1,
+                ReplyTo = -1
             },
             new
             {
@@ -75,7 +80,8 @@ public static class DataProvider
                 UserId = 3,
                 Text = "can you help me?",
                 DateTime = DateTime.Now - TimeSpan.FromMinutes(6),
-                ChatId = 2
+                ChatId = 2,
+                ReplyTo = -1
             },
             new
             {
@@ -83,7 +89,8 @@ public static class DataProvider
                 UserId = 4,
                 Text = "sorry, i'm busy right now. maybe later",
                 DateTime = DateTime.Now - TimeSpan.FromMinutes(3),
-                ChatId = 2
+                ChatId = 2,
+                ReplyTo = -1
             },
             new
             {
@@ -91,7 +98,8 @@ public static class DataProvider
                 UserId = 3,
                 Text = "it's urgent ;(",
                 DateTime = DateTime.Now - TimeSpan.FromMinutes(3),
-                ChatId = 2
+                ChatId = 2,
+                ReplyTo = -1
             },
             new
             {
@@ -99,9 +107,9 @@ public static class DataProvider
                 UserId = 4,
                 Text = "fine, what's the problem?",
                 DateTime = DateTime.Now - TimeSpan.FromMinutes(1),
-                ChatId = 2
-            }
-            );
+                ChatId = 2,
+                ReplyTo = -1
+            });
         
         modelBuilder.Entity<MembersInChat>().HasData(
             new MembersInChat
@@ -143,7 +151,6 @@ public static class DataProvider
 
         modelBuilder.Entity<Chat>().HasData(
             new Chat {ChatId = 1, ChatName = "group chat"}, 
-            new Chat {ChatId = 2, ChatName = "personal chat"}
-            );
+            new Chat {ChatId = 2, ChatName = "personal chat"});
     }
 }

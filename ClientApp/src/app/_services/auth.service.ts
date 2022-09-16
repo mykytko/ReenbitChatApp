@@ -4,16 +4,16 @@ import { Observable } from 'rxjs'
 
 const httpOptions = {
   headers: new HttpHeaders({'Content-Type': 'application/json'})
-};
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  url: string;
+  url: string
 
   constructor(private http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
-    this.url = baseUrl + 'auth';
+    this.url = baseUrl + 'auth'
   }
 
   public login(login: string, password: string): Observable<any> {
@@ -21,6 +21,6 @@ export class AuthService {
       this.url + '/login',
       {login, password},
       httpOptions
-    );
+    )
   }
 }

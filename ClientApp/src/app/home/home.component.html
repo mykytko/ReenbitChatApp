@@ -1,28 +1,53 @@
 <div class="wrapper">
   <div class="chat-list">
-    <div class="block" *ngFor="let block of blocks" (click)="openChat(block.chatName)"
+    <div class="block" *ngFor="let block of this.signalrService.blocks" (click)="openChat(block.chatName)"
          [class.block-active]="block.chatName == selectedChat">
       <div class="text">
         <p class="chat-name">{{block.chatName}}</p>
-        <p><span class="sender-name">{{block.lastMessageSender}}</span>: {{block.lastMessageText}}</p>
+        <p><span class="sender-name">{{block.lastMessageSender}}:</span>{{block.lastMessageText}}</p>
       </div>
-      <div class="notification" *ngIf="block.isNew"></div>
     </div>
   </div>
   <div class="chat-window">
     <div class="messages">
-      <div class="message" *ngFor="let message of this.signalrService.data">
-        <span class="username">{{message.username}}</span>: <span class="text">{{message.text}}</span>
+      <div class="message" *ngFor="let message of this.signalrService.data.get(this.selectedChat)"
+           [ngClass]="{ 'my-message': message.username === this.storageService.getToken().username }">
+        <span class="reply-to" *ngIf="message.replyTo !== -1">Reply to:
+          <em>{{findMessage(message.replyTo).username}}: {{findMessage(message.replyTo).text}}</em></span>
+        <span class="username">{{message.username}}:</span><span class="text">{{message.text}}</span>
         <span class="date">{{message.date}}</span>
+        <div class="buttons-div">
+          <button *ngIf="!isPersonal" (click)="reply(message.id)">Reply</button>
+          <button (click)="edit(message)">Edit</button>
+          <button (click)="delete(message)">Delete</button>
+        </div>
       </div>
     </div>
+    <div id="reply">
+      Reply to: ndjwqbgfjowefbjwe jorfnqjorgn jqowengjo nrgjo enwog nqwdoj gnfqown fgqwn fggojwq gjqwn efnwqd nfqwp nfkqw ndpqw
+    </div>
+    <button id="cancel-reply" (click)="cancelReply()">x</button>
     <div class="form-group">
       <div class="message-input">
         <input id="message-text" class="input-group form-text message-input-inner" type="text"
         [(ngModel)]="messageText" />
       </div>
       <button id="send" class="btn btn-primary btn-block" (click)="sendMessage()">Send</button>
+      <button id="edit" class="btn btn-primary btn-block">Edit</button>
     </div>
   </div>
 </div>
+
+<dialog id="dialog">
+  <div class="wrapper-vertical">
+    <div class="wrapper">
+      <label class="form-check-label" for="delete-for-all">Delete message for everyone</label>
+      <input class="form-check-input" type="checkbox" id="delete-for-all"/>
+    </div>
+    <div class="wrapper">
+      <button id="dialog-delete" class="btn btn-primary btn-light">Delete</button>
+      <button id="dialog-cancel" class="btn btn-primary btn-light">Cancel</button>
+    </div>
+  </div>
+</dialog>
 

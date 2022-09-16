@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using ReenbitChatApp.EFL;
 
-namespace ReenbitChat.EFL;
+namespace ReenbitChatApp.EFL;
 
 public class Chat
 {

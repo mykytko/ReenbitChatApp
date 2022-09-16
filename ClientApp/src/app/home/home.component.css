@@ -1,24 +1,24 @@
 .wrapper {
   display: flex;
   flex-flow: row;
+  flex-shrink: 0;
 }
 
-.notification {
-  border-radius: 0.5em;
-  width: 1em;
-  height: 1em;
-  background-color: #ff0000;
-  right: 30px;
-  top: 43%;
-  position: absolute;
+.sender-name, .username {
+  margin-right: 3px;
 }
 
 .chat-list {
   width: 30%;
+  max-width: 30%;
+  position: absolute;
+  left: 0;
+  margin-left: 1em;
 }
 
 .chat-window {
-  width: 65%;
+  width: 60%;
+  max-width: 60%;
   max-height: 87%;
   height: 87%;
   position: absolute;
@@ -31,13 +31,34 @@
 
 .username {
   font-weight: bold;
+  width: 100%;
 }
 
 .message {
-  background-color: #0d6efd;
+  background-color: #1d8bfa;
   border-radius: 8px;
-  margin: 3px;
   padding: 3px;
+  width: 100%;
+  text-overflow: clip;
+  position: relative;
+  display: flex;
+  flex-flow: row wrap;
+  margin: 3px 0 3px 0;
+}
+
+@media screen and (min-width: 800px)  {
+  .message {
+    margin-left: 50%;
+    width: 50%;
+  }
+
+  .my-message {
+    margin-left: 0;
+  }
+}
+
+span {
+  display: inline-flex;
 }
 
 .date::before{
@@ -50,11 +71,15 @@
   width: 100%;
   margin-top: 7px;
   margin-bottom: 7px;
-  margin-left: 1em;
+  margin-left: 0;
   border-radius: 5px;
   padding: 5px 10px;
   position: relative;
   box-shadow: #1861ac 4px 4px;
+  display: flex;
+  flex-flow: row wrap;
+  overflow: hidden;
+  max-height: 20vh;
 }
 
 .block-active {
@@ -80,7 +105,7 @@
 }
 
 .messages {
-  max-height: 90%;
+  max-height: 88%;
   overflow-y: scroll;
 }
 
@@ -96,4 +121,76 @@
   position: absolute;
   display: flex;
   flex-flow: row;
+}
+
+.buttons-div {
+  margin-left: auto;
+}
+
+.buttons-div > button {
+  background: transparent;
+  border: none;
+  text-decoration: underline;
+}
+
+#send{
+  display: block;
+}
+
+#edit {
+  display: none;
+}
+
+#reply-button {
+  display: none;
+}
+
+#delete-for-all {
+  margin-left: 1em;
+}
+
+#dialog {
+  background-color: #ef5775;
+  border: none;
+  box-shadow: crimson 4px 4px;
+  border-radius: 8px;
+}
+
+#dialog .wrapper {
+  display: block;
+  line-height: 200%;
+}
+
+#dialog .wrapper-vertical {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  row-gap: 10px;
+}
+
+#reply {
+  position: absolute;
+  bottom: 45px;
+  left: 0;
+  max-height: 1.8em;
+  width: 88%;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+#cancel-reply {
+  position: absolute;
+  bottom: 45px;
+  visibility: hidden;
+  right: 10%;
+  background: transparent;
+  color: crimson;
+  font-weight: bold;
+  border: none;
+}
+
+span.reply-to {
+  display: block;
+  width: 100%;
+  overflow: hidden;
 }

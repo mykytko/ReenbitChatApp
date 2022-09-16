@@ -1,6 +1,6 @@
-import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from "@angular/router";
-import {Injectable} from "@angular/core";
-import {StorageService} from "./storage.service";
+import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from "@angular/router"
+import {Injectable} from "@angular/core"
+import {StorageService} from "./storage.service"
 
 @Injectable(
   {
@@ -12,10 +12,11 @@ export class AuthGuardService implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     if (this.storageService.getToken().username !== undefined) {
-      return true;
+      return true
     }
 
-    this.router.navigate(['/login'], {queryParams: { returnUrl: state.url }});
-    return false;
+    this.router.navigate(['/login'], {queryParams: { returnUrl: state.url }})
+      .catch(err => console.log(err))
+    return false
   }
 }

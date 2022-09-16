@@ -12,23 +12,8 @@ public class AuthOptions
         _jwt = jwt;
     }
     
-    public string Issuer
-    {
-        get => _jwt["Issuer"];
-    }
-
-    public string Audience
-    {
-        get => _jwt["Audience"];
-    }
-
-    public SymmetricSecurityKey Key
-    {
-        get => new(Encoding.ASCII.GetBytes(_jwt["Key"]));
-    }
-
-    public int Lifetime
-    {
-        get => int.Parse(_jwt["Lifetime"]);
-    }
+    public string Issuer => _jwt["Issuer"];
+    public string Audience => _jwt["Audience"];
+    public SymmetricSecurityKey Key => new(Encoding.ASCII.GetBytes(_jwt["Key"]));
+    public int Lifetime => int.Parse(_jwt["Lifetime"]);
 }

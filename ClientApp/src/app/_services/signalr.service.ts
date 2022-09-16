@@ -7,7 +7,11 @@ import {StorageService} from "./storage.service"
 })
 export class SignalrService {
   private url: string
-  public data: Message[] = []
+  public data: Map<string, Message[]> = new Map<string, Message[]>()
+  public blocks: Block[] = []
+  private canRequestMore: Map<string, boolean> = new Map<string, boolean>()
+  private tooQuickRequests = false
+  private firstRequest: Map<string, boolean> = new Map<string, boolean>()
 
   private hubConnection: signalR.HubConnection | undefined
   constructor(@Inject('BASE_URL') baseUrl: string, private storageService: StorageService) {
@@ -21,59 +25,106 @@ export class SignalrService {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(this.url + '?access_token=' + this.storageService.getToken().access_token)
       .build()
-    await this.hubConnection.start();
+    await this.hubConnection.start()
+
+    this.addGetChatsListener()
+    this.addGetMessagesListener()
+    this.addBroadcastMessageListener()
+    this.addBroadcastEditListener()
+    this.addBroadcastDeleteListener()
+
+    this.getChats()
   }
 
-  public addBroadcastMessagesListener() {
-    if (this.hubConnection === undefined) {
-      console.log("error: connection not initiated")
-      return
-    }
-    this.hubConnection.on('BroadcastMessages', data => {
-      this.data = JSON.parse(data);
-      console.log(data);
-    });
+  private getChats() {
+    this.hubConnection?.invoke('GetChats').catch(err => console.log(err))
   }
 
-  public addBroadcastMessageListener() {
-    if (this.hubConnection === undefined) {
-      console.log("error: connection not initiated")
-      return
-    }
-    this.hubConnection.on('BroadcastMessage', data => {
-      this.data.push(JSON.parse(data));
-      console.log(data);
+  private addGetMessagesListener() {
+    this.hubConnection?.on('GetMessages', (chatName: string, messages: Message[]) => {
+      messages.reverse()
+      this.data?.get(chatName)?.unshift(...messages)
+      if (messages.length < 20) {
+        this.canRequestMore.set(chatName, false)
+      }
+      const el = document.getElementsByClassName('messages')[0] as HTMLDivElement
+      if (this.firstRequest.get(chatName)) {
+        setTimeout(() => el.scrollTop = Math.max(0, el.scrollHeight - el.offsetHeight), 5)
+        this.firstRequest.set(chatName, false)
+      } else {
+        let oldScrollTop = el.scrollTop
+        let oldScrollHeight = el.scrollHeight
+        setTimeout(() => el.scrollTop = oldScrollTop + (el.scrollHeight - oldScrollHeight), 5)
+      }
+    })
+  }
+
+  private addBroadcastMessageListener() {
+    this.hubConnection?.on('BroadcastMessage', (chatName: string, message: Message) => {
+      this.data.get(chatName)!.push(message)
+    })
+  }
+
+  private addGetChatsListener() {
+    this.hubConnection?.on('GetChats', (data: Block[]) => {
+      data.forEach((block: Block) => {
+        this.data.set(block.chatName, [])
+        this.canRequestMore.set(block.chatName, true)
+        this.firstRequest.set(block.chatName, true)
+      })
+      this.blocks.push(...data)
+    })
+  }
+
+  private addBroadcastEditListener() {
+    this.hubConnection?.on('BroadcastEdit', (chatName: string, id: number, text: string) => {
+      let message = this.data.get(chatName)!.find(m => m.id == id)
+      if (message !== undefined) {
+        message.text = text
+      }
+    })
+  }
+
+  private deleteMessageFromArray(chatName: string, id: number) {
+    let array = this.data.get(chatName)!
+    array.splice(array.findIndex(m => m.id == id), 1)
+  }
+
+  private addBroadcastDeleteListener() {
+    this.hubConnection?.on('BroadcastDelete', (chatName: string, messageId: number) => {
+      this.deleteMessageFromArray(chatName, messageId)
     })
   }
 
   public requestMessages(chat: string) {
-    if (this.hubConnection === undefined) {
-      console.log("error: connection not initiated")
+    if (!this.canRequestMore.get(chat) || this.tooQuickRequests) {
       return
     }
-    this.hubConnection.invoke('BroadcastMessages',
-      this.getConnectionId(), 0, chat).catch(err => console.log(err));
+    this.tooQuickRequests = true
+    setTimeout(() => this.tooQuickRequests = false, 200)
+
+    this.hubConnection?.invoke('GetMessages',
+      this.data.get(chat)?.length, chat).catch(err => console.log(err))
   }
 
-  public getConnectionId() {
-    if (this.hubConnection === undefined) {
-      console.log("error: connection not initiated")
+  public sendMessage(chat: string, messageText: string, replyTo: number) {
+    this.hubConnection?.invoke('BroadcastMessage', chat, messageText, replyTo).catch(err => console.log(err))
+  }
+
+  public sendEditedMessage(id: number, messageText: string) {
+    this.hubConnection?.invoke('BroadcastEdit', id, messageText).catch(err => console.log(err))
+  }
+
+  public deleteMessage(chatName: string, id: number, deleteForAll: boolean) {
+    let len = this.data?.get(chatName)?.length
+    if (len === undefined) {
       return
     }
-    return this.hubConnection.connectionId;
-  }
 
-  public sendMessage(chat: string, messageText: string) {
-    if (this.hubConnection === undefined) {
-      console.log("error: connection not initiated")
-      return
+    if (deleteForAll) {
+      this.hubConnection?.invoke('BroadcastDelete', id).catch(err => console.log(err))
+    } else {
+      this.deleteMessageFromArray(chatName, id)
     }
-    this.hubConnection.invoke('BroadcastMessage', chat, messageText).catch(err => console.log(err));
   }
-}
-
-interface Message {
-  username: string;
-  text: string;
-  date: string;
 }

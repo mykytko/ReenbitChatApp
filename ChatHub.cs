@@ -1,10 +1,8 @@
 using System.Globalization;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using ReenbitChat.EFL;
 using ReenbitChatApp.EFL;
 
 namespace ReenbitChatApp;
@@ -19,26 +17,96 @@ public class ChatHub : Hub
         _appDbContext = appDbContext;
     }
 
-    public async Task BroadcastMessages(string connectionId, int skip, string chatName) =>
-        await Clients.Client(connectionId).SendAsync("BroadcastMessages",
-            JsonSerializer.Serialize(
-                _appDbContext.Messages
-                .Include(m => m.Chat)
-                .Where(m => m.Chat.ChatName == chatName)
-                .Include(m => m.User)
-                .OrderBy(m => m.DateTime)
-                .Skip(skip)
-                .Take(20)
-                .Select(m => new
-                {
-                    username = m.User.Login,
-                    text = m.Text,
-                    date = m.DateTime.ToLocalTime().ToString(CultureInfo.CurrentCulture)
-                })
-                .AsEnumerable()
-            ));
+    public async Task GetChats()
+    {
+        var userId = _appDbContext.Users.First(u => u.Login == Context.User!.Identity!.Name).UserId;
+        var chatIds = _appDbContext.MembersInChats
+            .Where(mic => mic.UserId == userId)
+            .Select(mic => mic.ChatId)
+            .ToList();
 
-    public async Task BroadcastMessage(string chatName, string messageText)
+        var result = chatIds.Select(id =>
+        {
+            var message = _appDbContext.Chats
+                .Include(c => c.Messages)
+                .ThenInclude(m => m.User)
+                .First(c => c.ChatId == id)
+                .Messages
+                .MaxBy(m => m.DateTime)!;
+
+            var chatName = _appDbContext.Chats.First(c => c.ChatId == id).ChatName;
+            var lastMessageSender = message.User.Login;
+            var lastMessageText = message.Text;
+            var isPersonal = _appDbContext.MembersInChats.Count(mic => mic.ChatId == id) == 2;
+
+            return new
+            {
+                chatName,
+                lastMessageSender,
+                lastMessageText,
+                isPersonal
+            };
+        }).ToList();
+
+        await Clients.Client(Context.ConnectionId).SendAsync("GetChats", result);
+    }
+
+    public async Task GetMessages(int skip, string chatName) =>
+        await Clients.Client(Context.ConnectionId).SendAsync("GetMessages", 
+                chatName,
+                _appDbContext.Messages
+                    .Include(m => m.Chat)
+                    .Where(m => m.Chat.ChatName == chatName)
+                    .Include(m => m.User)
+                    .OrderByDescending(m => m.DateTime)
+                    .Skip(skip)
+                    .Take(20)
+                    .Select(m => new
+                    {
+                        id = m.MessageId,
+                        username = m.User.Login,
+                        text = m.Text,
+                        date = m.DateTime.ToLocalTime().ToString(CultureInfo.CurrentCulture),
+                        replyTo = m.ReplyTo
+                    })
+                    .ToList()
+            );
+
+    public async Task BroadcastDelete(int messageId)
+    {
+        var message = _appDbContext.Messages
+            .Include(m => m.Chat)
+            .FirstOrDefault(m => m.MessageId == messageId);
+        if (message == null)
+        {
+            return;
+        }
+
+        var chatName = message.Chat.ChatName;
+        _appDbContext.Messages.Remove(message);
+        await _appDbContext.SaveChangesAsync();
+        await Clients.All.SendAsync("BroadcastDelete", chatName, messageId);
+    }
+
+    public async Task BroadcastEdit(int messageId, string messageText)
+    {
+        var message = _appDbContext.Messages
+            .Include(m => m.Chat)
+            .FirstOrDefault(m => m.MessageId == messageId);
+        if (message == null)
+        {
+            return;
+        }
+        
+        message.Text = messageText;
+        _appDbContext.Update(message);
+        await _appDbContext.SaveChangesAsync();
+        
+        await Clients.All.SendAsync("BroadcastEdit", 
+            message.Chat.ChatName, messageId, messageText);
+    }
+
+    public async Task BroadcastMessage(string chatName, string messageText, int replyTo)
     {
         var chat = _appDbContext.Chats.FirstOrDefault(c => c.ChatName == chatName);
         if (chat == null)
@@ -59,23 +127,24 @@ public class ChatHub : Hub
         }
 
         var now = DateTime.Now;
-        _appDbContext.Messages.Add(new Message 
+        var message = _appDbContext.Messages.Add(new Message 
         {
             ChatId = chat.ChatId,
             UserId = user.UserId,
             Text = messageText,
-            DateTime = now
+            DateTime = now,
+            ReplyTo = replyTo
         });
         await _appDbContext.SaveChangesAsync();
 
-        await Clients.All.SendAsync("BroadcastMessage", JsonSerializer.Serialize(
-            new
-            {
-                username = login,
-                text = messageText,
-                date = now.ToLocalTime().ToString(CultureInfo.CurrentCulture)
-            }
-        ));
+        await Clients.All.SendAsync("BroadcastMessage", chatName, new 
+        {
+            id = message.Entity.MessageId,
+            username = login,
+            text = messageText,
+            date = now.ToLocalTime().ToString(CultureInfo.CurrentCulture),
+            replyTo
+        });
     }
         
 }

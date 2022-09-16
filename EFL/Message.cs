@@ -1,15 +1,15 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using ReenbitChatApp.EFL;
 
-namespace ReenbitChat.EFL;
+namespace ReenbitChatApp.EFL;
 
 public class Message
 {
     [Key]
     public int MessageId { get; set; }
     public int UserId { get; set; }
+    public int ReplyTo { get; set; }
     
     [ForeignKey("UserId"), JsonIgnore]
     public User User { get; set; }

@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using ReenbitChat.EFL;
 
 namespace ReenbitChatApp.EFL;
 
