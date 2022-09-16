@@ -100,6 +100,14 @@ export class HomeComponent implements OnInit {
   }
 
   public delete(message: Message) {
+    if (message.username !== this.storageService.getToken().username) {
+      if (confirm('Do you want to delete this message from your client?')) {
+        this.signalrService.deleteMessageFromArray(this.selectedChat, message.id)
+      }
+
+      return
+    }
+
     let dialog = document.getElementById("dialog") as HTMLDialogElement
     dialog.showModal()
     document.getElementById('dialog-cancel')!.onclick = () => dialog.close()
@@ -125,7 +133,7 @@ export class HomeComponent implements OnInit {
     document.getElementById('cancel-reply')!.style.visibility = 'hidden'
   }
 
-  public findMessage(replyTo: number) {
-    return this.signalrService.data.get(this.selectedChat)!.find(m => m.id == replyTo)!
+  public findMessage(replyTo: number)  {
+    return this.signalrService.data.get(this.selectedChat)!.find(m => m.id == replyTo)
   }
 }

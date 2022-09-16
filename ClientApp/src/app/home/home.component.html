@@ -13,12 +13,13 @@
       <div class="message" *ngFor="let message of this.signalrService.data.get(this.selectedChat)"
            [ngClass]="{ 'my-message': message.username === this.storageService.getToken().username }">
         <span class="reply-to" *ngIf="message.replyTo !== -1">Reply to:
-          <em>{{findMessage(message.replyTo).username}}: {{findMessage(message.replyTo).text}}</em></span>
+          <em>{{findMessage(message.replyTo)?.username}}: {{findMessage(message.replyTo)?.text}}</em></span>
         <span class="username">{{message.username}}:</span><span class="text">{{message.text}}</span>
         <span class="date">{{message.date}}</span>
         <div class="buttons-div">
           <button *ngIf="!isPersonal" (click)="reply(message.id)">Reply</button>
-          <button (click)="edit(message)">Edit</button>
+          <button *ngIf="message.username === this.storageService.getToken().username"
+                  (click)="edit(message)">Edit</button>
           <button (click)="delete(message)">Delete</button>
         </div>
       </div>

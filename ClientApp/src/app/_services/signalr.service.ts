@@ -62,6 +62,10 @@ export class SignalrService {
   private addBroadcastMessageListener() {
     this.hubConnection?.on('BroadcastMessage', (chatName: string, message: Message) => {
       this.data.get(chatName)!.push(message)
+      const el = document.getElementsByClassName('messages')[0] as HTMLDivElement
+      if (Math.abs(el.scrollTop - (el.scrollHeight - el.offsetHeight)) < 15) {
+        setTimeout(() => el.scrollTop = Math.max(0, el.scrollHeight - el.offsetHeight), 5)
+      }
     })
   }
 
@@ -85,7 +89,7 @@ export class SignalrService {
     })
   }
 
-  private deleteMessageFromArray(chatName: string, id: number) {
+  public deleteMessageFromArray(chatName: string, id: number) {
     let array = this.data.get(chatName)!
     array.splice(array.findIndex(m => m.id == id), 1)
   }

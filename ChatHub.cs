@@ -76,8 +76,14 @@ public class ChatHub : Hub
     {
         var message = _appDbContext.Messages
             .Include(m => m.Chat)
+            .Include(m => m.User)
             .FirstOrDefault(m => m.MessageId == messageId);
         if (message == null)
+        {
+            return;
+        }
+        
+        if (message.User.Login != Context.User!.Identity!.Name)
         {
             return;
         }
@@ -90,10 +96,21 @@ public class ChatHub : Hub
 
     public async Task BroadcastEdit(int messageId, string messageText)
     {
+        if (string.IsNullOrWhiteSpace(messageText))
+        {
+            return;
+        }
+        
         var message = _appDbContext.Messages
             .Include(m => m.Chat)
+            .Include(m => m.User)
             .FirstOrDefault(m => m.MessageId == messageId);
         if (message == null)
+        {
+            return;
+        }
+
+        if (message.User.Login != Context.User!.Identity!.Name)
         {
             return;
         }
@@ -108,6 +125,11 @@ public class ChatHub : Hub
 
     public async Task BroadcastMessage(string chatName, string messageText, int replyTo)
     {
+        if (string.IsNullOrWhiteSpace(messageText))
+        {
+            return;
+        }
+        
         var chat = _appDbContext.Chats.FirstOrDefault(c => c.ChatName == chatName);
         if (chat == null)
         {
