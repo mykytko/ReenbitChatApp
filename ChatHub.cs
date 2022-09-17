@@ -130,7 +130,9 @@ public class ChatHub : Hub
             return;
         }
         
-        var chat = _appDbContext.Chats.FirstOrDefault(c => c.ChatName == chatName);
+        var chat = _appDbContext.Chats
+            .Include(c => c.Members)
+            .FirstOrDefault(c => c.ChatName == chatName);
         if (chat == null)
         {
             return;
@@ -144,6 +146,11 @@ public class ChatHub : Hub
 
         var user = _appDbContext.Users.FirstOrDefault(u => u.Login == login);
         if (user == null)
+        {
+            return;
+        }
+
+        if (!chat.Members.Contains(user))
         {
             return;
         }
@@ -168,5 +175,4 @@ public class ChatHub : Hub
             replyTo
         });
     }
-        
 }
