@@ -61,6 +61,7 @@ export class SignalrService {
 
   private addBroadcastMessageListener() {
     this.hubConnection?.on('BroadcastMessage', (chatName: string, message: Message) => {
+      console.log('received ' + message.text + ' for chat ' + chatName)
       this.data.get(chatName)!.push(message)
       const el = document.getElementsByClassName('messages')[0] as HTMLDivElement
       if (Math.abs(el.scrollTop - (el.scrollHeight - el.offsetHeight)) < 15) {
@@ -112,6 +113,7 @@ export class SignalrService {
   }
 
   public sendMessage(chat: string, messageText: string, replyTo: number) {
+    console.log('sending ' + messageText + ' to chat ' + chat)
     this.hubConnection?.invoke('BroadcastMessage', chat, messageText, replyTo).catch(err => console.log(err))
   }
 

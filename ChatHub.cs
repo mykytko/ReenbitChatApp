@@ -126,15 +126,15 @@ public class ChatHub : Hub
 
     public async Task BroadcastMessage(string chatName, string messageText, int replyTo)
     {
+        Console.WriteLine('1');
         if (string.IsNullOrWhiteSpace(messageText))
         {
             return;
         }
         
-        var chat = _appDbContext.Chats
-            .Include(c => c.Members)
-            .FirstOrDefault(c => c.ChatName == chatName);
-        if (chat == null)
+        Console.WriteLine('2');
+        var chatId = _appDbContext.Chats.FirstOrDefault(c => c.ChatName == chatName)?.ChatId;
+        if (!chatId.HasValue)
         {
             return;
         }
@@ -145,13 +145,15 @@ public class ChatHub : Hub
             return;
         }
 
-        var user = _appDbContext.Users.FirstOrDefault(u => u.Login == login);
-        if (user == null)
+        var userId = _appDbContext.Users.FirstOrDefault(u => u.Login == login)?.UserId;
+        if (!userId.HasValue)
         {
             return;
         }
-
-        if (!chat.Members.Contains(user))
+        
+        if (!_appDbContext.MembersInChats
+            .Where(mic => mic.ChatId == chatId)
+            .Any(mic => mic.UserId == userId))
         {
             return;
         }
@@ -159,8 +161,8 @@ public class ChatHub : Hub
         var now = DateTime.Now;
         var message = _appDbContext.Messages.Add(new Message 
         {
-            ChatId = chat.ChatId,
-            UserId = user.UserId,
+            ChatId = chatId.Value,
+            UserId = userId.Value,
             Text = messageText,
             DateTime = now,
             ReplyTo = replyTo
