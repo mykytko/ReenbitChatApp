@@ -13,6 +13,7 @@ export class HomeComponent implements OnInit {
   url: string
   messageText: string = ""
   isPersonal: Boolean = false
+  scrolls: Map<string, number> = new Map<string, number>()
   private nextEnterListenerIsSend = false
   private replyTo = -1
 
@@ -65,8 +66,20 @@ export class HomeComponent implements OnInit {
   }
 
   public openChat(chatName: string) {
+    let messages = document.getElementsByClassName('messages')[0]
+    let scroll = this.scrolls.get(chatName)
+    if (this.selectedChat !== undefined) {
+      console.log(messages.scrollTop)
+      this.scrolls.set(this.selectedChat, messages.scrollTop)
+      if (scroll !== undefined) {
+        setTimeout(() => messages.scrollTop = scroll!, 5)
+      }
+    }
+
     this.selectedChat = chatName
-    this.signalrService.requestMessages(chatName)
+    if (scroll === undefined || scroll < 15) {
+      this.signalrService.requestMessages(chatName)
+    }
     this.isPersonal = this.signalrService.blocks.find(b => b.chatName == chatName)!.isPersonal
   }
 

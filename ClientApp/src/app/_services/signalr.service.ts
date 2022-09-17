@@ -43,6 +43,7 @@ export class SignalrService {
   private addGetMessagesListener() {
     this.hubConnection?.on('GetMessages', (chatName: string, messages: Message[]) => {
       messages.reverse()
+      console.log('received messages ' + messages)
       this.data?.get(chatName)?.unshift(...messages)
       if (messages.length < 20) {
         this.canRequestMore.set(chatName, false)
@@ -63,6 +64,9 @@ export class SignalrService {
     this.hubConnection?.on('BroadcastMessage', (chatName: string, message: Message) => {
       console.log('received ' + message.text + ' for chat ' + chatName)
       this.data.get(chatName)!.push(message)
+      let index = this.blocks.findIndex(b => b.chatName == chatName)
+      this.blocks[index].lastMessageSender = message.username
+      this.blocks[index].lastMessageText = message.text
       const el = document.getElementsByClassName('messages')[0] as HTMLDivElement
       if (Math.abs(el.scrollTop - (el.scrollHeight - el.offsetHeight)) < 15) {
         setTimeout(() => el.scrollTop = Math.max(0, el.scrollHeight - el.offsetHeight), 5)
@@ -113,11 +117,17 @@ export class SignalrService {
   }
 
   public sendMessage(chat: string, messageText: string, replyTo: number) {
-    console.log('sending ' + messageText + ' to chat ' + chat)
-    this.hubConnection?.invoke('BroadcastMessage', chat, messageText, replyTo).catch(err => console.log(err))
+    let index = 0
+    while (index < messageText.length) {
+      this.hubConnection?.invoke('BroadcastMessage', chat, messageText.slice(index, index + 4096), replyTo)
+        .catch(err => console.log(err))
+      replyTo = -1
+      index += 4096
+    }
   }
 
   public sendEditedMessage(id: number, messageText: string) {
+    console.log(id + ' ' + messageText)
     this.hubConnection?.invoke('BroadcastEdit', id, messageText).catch(err => console.log(err))
   }
 
