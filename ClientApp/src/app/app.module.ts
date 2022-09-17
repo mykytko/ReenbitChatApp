@@ -5,15 +5,12 @@ import { HttpClientModule } from '@angular/common/http'
 import { RouterModule } from '@angular/router'
 
 import { AppComponent } from './app.component'
-import { NavMenuComponent } from './nav-menu/nav-menu.component'
 import { HomeComponent } from './home/home.component'
 import { LoginComponent } from "./login/login.component"
-import { AuthGuardService } from "./_services/auth-guard.service"
 
 @NgModule({
   declarations: [
     AppComponent,
-    NavMenuComponent,
     HomeComponent,
     LoginComponent
   ],
@@ -22,8 +19,7 @@ import { AuthGuardService } from "./_services/auth-guard.service"
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([
-      { path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuardService] },
-      { path: 'login', component: LoginComponent },
+      { path: '', component: LoginComponent, pathMatch: 'full' },
       { path: '**', redirectTo: ''}
     ])
   ],

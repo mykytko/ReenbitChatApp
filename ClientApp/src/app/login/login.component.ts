@@ -31,7 +31,7 @@ export class LoginComponent implements OnInit {
         this.storageService.saveToken(response)
         this.isSuccessful = true
         this.isLoginFailed = false
-        window.location.reload()
+        window.location.href = '/index.html'
       },
       error: () => {
         this.isSuccessful = false

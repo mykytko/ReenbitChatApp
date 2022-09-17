@@ -6,3 +6,13 @@
 .alert.alert-success > .btn.btn-primary.btn-block {
   margin-left: 1em;
 }
+
+h1 {
+  margin-left: 2%;
+  margin-top: 2%;
+}
+
+.alert.alert-warning {
+  margin: auto;
+  width: 90%;
+}

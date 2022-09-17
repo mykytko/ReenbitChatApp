@@ -19,10 +19,11 @@
 .chat-window {
   width: 60%;
   max-width: 60%;
-  max-height: 87%;
-  height: 87%;
+  max-height: 90%;
+  height: 90%;
   position: absolute;
   right: 1em;
+  bottom: 5%;
 }
 
 .username, .date {

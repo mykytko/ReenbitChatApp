@@ -1,4 +1,4 @@
-<h1>Login</h1>
+<h1 *ngIf="!isSuccessful">Login</h1>
 
 <form
   *ngIf="!isSuccessful"
@@ -59,7 +59,4 @@
   </div>
 </form>
 
-<div class="alert alert-success" *ngIf="isSuccessful">
-  You are logged in!
-  <button id="send" class="btn btn-primary btn-block" (click)="logout()">Log out</button>
-</div>
+<app-home *ngIf="isSuccessful"></app-home>

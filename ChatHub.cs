@@ -91,6 +91,7 @@ public class ChatHub : Hub
         var chatName = message.Chat.ChatName;
         _appDbContext.Messages.Remove(message);
         await _appDbContext.SaveChangesAsync();
+        
         await Clients.All.SendAsync("BroadcastDelete", chatName, messageId);
     }
 
