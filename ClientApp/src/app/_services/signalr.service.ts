@@ -37,13 +37,15 @@ export class SignalrService {
   }
 
   private getChats() {
+    console.log('sending request for chats list')
     this.hubConnection?.invoke('GetChats').catch(err => console.log(err))
   }
 
   private addGetMessagesListener() {
     this.hubConnection?.on('GetMessages', (chatName: string, messages: Message[]) => {
       messages.reverse()
-      console.log('received messages ' + messages)
+      console.log('received messages:')
+      console.log(messages)
       this.data?.get(chatName)?.unshift(...messages)
       if (messages.length < 20) {
         this.canRequestMore.set(chatName, false)
@@ -62,7 +64,8 @@ export class SignalrService {
 
   private addBroadcastMessageListener() {
     this.hubConnection?.on('BroadcastMessage', (chatName: string, message: Message) => {
-      console.log('received ' + message.text + ' for chat ' + chatName)
+      console.log('received message for chat ' + chatName + ':')
+      console.log(message)
       this.data.get(chatName)!.push(message)
       let index = this.blocks.findIndex(b => b.chatName == chatName)
       this.blocks[index].lastMessageSender = message.username
@@ -76,6 +79,8 @@ export class SignalrService {
 
   private addGetChatsListener() {
     this.hubConnection?.on('GetChats', (data: Block[]) => {
+      console.log('received chats: ')
+      console.log(data)
       data.forEach((block: Block) => {
         this.data.set(block.chatName, [])
         this.canRequestMore.set(block.chatName, true)
@@ -87,6 +92,7 @@ export class SignalrService {
 
   private addBroadcastEditListener() {
     this.hubConnection?.on('BroadcastEdit', (chatName: string, id: number, text: string) => {
+      console.log('received edit request for message #' + id + ' from chat ' + chatName + ': ' + text)
       let message = this.data.get(chatName)!.find(m => m.id == id)
       if (message !== undefined) {
         message.text = text
@@ -101,6 +107,7 @@ export class SignalrService {
 
   private addBroadcastDeleteListener() {
     this.hubConnection?.on('BroadcastDelete', (chatName: string, messageId: number) => {
+      console.log('received message delete request for message #' + messageId + ' from chat ' + chatName)
       this.deleteMessageFromArray(chatName, messageId)
     })
   }
@@ -112,13 +119,15 @@ export class SignalrService {
     this.tooQuickRequests = true
     setTimeout(() => this.tooQuickRequests = false, 200)
 
-    this.hubConnection?.invoke('GetMessages',
-      this.data.get(chat)?.length, chat).catch(err => console.log(err))
+    let len = this.data.get(chat)?.length ?? 0
+    console.log('sending request for 20 messages from chat ' + chat + ' skipping the last ' + len)
+    this.hubConnection?.invoke('GetMessages', len, chat).catch(err => console.log(err))
   }
 
   public sendMessage(chat: string, messageText: string, replyTo: number) {
     let index = 0
     while (index < messageText.length) {
+      console.log('sending to chat ' + chat + ' in reply to #' + replyTo + ' message ' + messageText)
       this.hubConnection?.invoke('BroadcastMessage', chat, messageText.slice(index, index + 4096), replyTo)
         .catch(err => console.log(err))
       replyTo = -1
@@ -127,7 +136,7 @@ export class SignalrService {
   }
 
   public sendEditedMessage(id: number, messageText: string) {
-    console.log(id + ' ' + messageText)
+    console.log('sending message edit to message #' + id + ': ' + messageText)
     this.hubConnection?.invoke('BroadcastEdit', id, messageText).catch(err => console.log(err))
   }
 
@@ -138,8 +147,10 @@ export class SignalrService {
     }
 
     if (deleteForAll) {
+      console.log('sending delete for all request for message #' + id + ' from chat ' + chatName)
       this.hubConnection?.invoke('BroadcastDelete', id).catch(err => console.log(err))
     } else {
+      console.log('deleting locally message #' + id + ' from chat ' + chatName)
       this.deleteMessageFromArray(chatName, id)
     }
   }

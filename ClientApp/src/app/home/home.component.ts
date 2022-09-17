@@ -69,7 +69,6 @@ export class HomeComponent implements OnInit {
     let messages = document.getElementsByClassName('messages')[0]
     let scroll = this.scrolls.get(chatName)
     if (this.selectedChat !== undefined) {
-      console.log(messages.scrollTop)
       this.scrolls.set(this.selectedChat, messages.scrollTop)
       if (scroll !== undefined) {
         setTimeout(() => messages.scrollTop = scroll!, 5)
@@ -148,5 +147,13 @@ export class HomeComponent implements OnInit {
 
   public findMessage(replyTo: number)  {
     return this.signalrService.data.get(this.selectedChat)!.find(m => m.id == replyTo)
+  }
+
+  getDate(message: Message) {
+    let dateString = message.date
+    if (!dateString.endsWith(' UTC')) {
+      dateString += ' UTC'
+    }
+    return new Date(dateString).toLocaleString()
   }
 }

@@ -15,7 +15,7 @@
         <span class="reply-to" *ngIf="message.replyTo !== -1">Reply to:
           <em>{{findMessage(message.replyTo)?.username ?? 'Deleted message'}}: {{findMessage(message.replyTo)?.text}}</em></span>
         <span class="username">{{message.username}}:</span><span class="text">{{message.text}}</span>
-        <span class="date">{{message.date}}</span>
+        <span class="date">{{getDate(message)}}</span>
         <div class="buttons-div">
           <button *ngIf="!isPersonal" (click)="reply(message.id)">Reply</button>
           <button *ngIf="message.username === this.storageService.getToken().username"

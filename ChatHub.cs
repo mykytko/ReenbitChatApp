@@ -66,7 +66,7 @@ public class ChatHub : Hub
                         id = m.MessageId,
                         username = m.User.Login,
                         text = m.Text,
-                        date = m.DateTime.ToLocalTime().ToString(CultureInfo.CurrentCulture),
+                        date = m.DateTime.ToString(CultureInfo.InvariantCulture) + " UTC",
                         replyTo = m.ReplyTo
                     })
                     .ToList()
@@ -158,7 +158,7 @@ public class ChatHub : Hub
             return;
         }
 
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         var message = _appDbContext.Messages.Add(new Message 
         {
             ChatId = chatId.Value,
@@ -174,7 +174,7 @@ public class ChatHub : Hub
             id = message.Entity.MessageId,
             username = login,
             text = messageText,
-            date = now.ToLocalTime().ToString(CultureInfo.CurrentCulture),
+            date = now.ToString(CultureInfo.InvariantCulture) + " UTC",
             replyTo
         });
     }
