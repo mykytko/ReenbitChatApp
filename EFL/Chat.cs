@@ -1,12 +1,14 @@
-using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ReenbitChatApp.EFL;
 
-public class Chat
+public class Chat : BaseEntity
 {
-    [Key]
-    public int ChatId { get; set; }
     public string ChatName { get; set; }
-    public ICollection<User> Members { get; set; }
+    
+    [JsonIgnore]
+    public ICollection<MembersInChat> Members { get; set; }
+    
+    [JsonIgnore]
     public ICollection<Message> Messages { get; set; }
 }

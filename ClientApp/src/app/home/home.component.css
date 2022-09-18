@@ -150,11 +150,16 @@ span {
   margin-left: 1em;
 }
 
-#dialog {
+#dialog, #reply-dialog {
   background-color: #ef5775;
   border: none;
   box-shadow: crimson 4px 4px;
   border-radius: 8px;
+}
+
+#reply-dialog button {
+  margin-left: 15px;
+  margin-right: 15px;
 }
 
 #dialog .wrapper {
@@ -194,5 +199,9 @@ span.reply-to {
   display: block;
   width: 100%;
   overflow: hidden;
-  height: 2.8em;
+  max-height: 2.8em;
+}
+
+.red {
+  color: crimson;
 }

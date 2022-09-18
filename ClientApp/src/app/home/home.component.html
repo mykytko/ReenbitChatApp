@@ -12,8 +12,10 @@
     <div class="messages">
       <div class="message" *ngFor="let message of this.signalrService.data.get(this.selectedChat)"
            [ngClass]="{ 'my-message': message.username === this.storageService.getToken().username }">
-        <span class="reply-to" *ngIf="message.replyTo !== -1">Reply to:
-          <em>{{findMessage(message.replyTo)?.username ?? 'Deleted message'}}: {{findMessage(message.replyTo)?.text}}</em></span>
+        <span class="reply-to" [ngClass]="{'red': repliedToMe(message)}" *ngIf="message.replyTo !== -1">
+          Replied {{message.replyIsPersonal ? 'personally' : ''}} to:
+          <em>{{findMessage(message.replyTo)?.username ?? 'Deleted message'}}:
+            {{findMessage(message.replyTo)?.text}}</em></span>
         <span class="username">{{message.username}}:</span><span class="text">{{message.text}}</span>
         <span class="date">{{getDate(message)}}</span>
         <div class="buttons-div">
@@ -49,6 +51,13 @@
       <button id="dialog-delete" class="btn btn-primary btn-light">Delete</button>
       <button id="dialog-cancel" class="btn btn-primary btn-light">Cancel</button>
     </div>
+  </div>
+</dialog>
+
+<dialog id="reply-dialog">
+  <div class="wrapper">
+    <button class="btn btn-primary btn-light" id="reply-personally">Reply personally</button>
+    <button class="btn btn-primary btn-light" id="reply-in-group">Reply in group</button>
   </div>
 </dialog>
 

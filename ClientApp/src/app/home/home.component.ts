@@ -16,6 +16,7 @@ export class HomeComponent implements OnInit {
   scrolls: Map<string, number> = new Map<string, number>()
   private nextEnterListenerIsSend = false
   private replyTo = -1
+  private replyIsPersonal = false
 
   private scrollListener = function(this: HomeComponent, event: Event) {
     event.preventDefault()
@@ -87,7 +88,7 @@ export class HomeComponent implements OnInit {
       return
     }
 
-    this.signalrService.sendMessage(this.selectedChat, this.messageText, this.replyTo)
+    this.signalrService.sendMessage(this.selectedChat, this.messageText, this.replyTo, this.replyIsPersonal)
     this.messageText = ''
     this.cancelReply()
   }
@@ -131,12 +132,26 @@ export class HomeComponent implements OnInit {
   }
 
   public reply(id: number) {
-    let reply = document.getElementById('reply')!
-    let message = this.signalrService.data.get(this.selectedChat)!.find(m => m.id == id)!
-    reply.innerHTML = 'Reply to: <em>' + message.username + ': ' + message.text + '</em>'
-    reply.style.visibility = 'visible'
-    document.getElementById('cancel-reply')!.style.visibility = 'visible'
-    this.replyTo = id
+    let replyDialog = document.getElementById('reply-dialog')! as HTMLDialogElement
+    let callback = () => {
+      replyDialog.close()
+      let reply = document.getElementById('reply')!
+      let message = this.signalrService.data.get(this.selectedChat)!.find(m => m.id == id)!
+      reply.innerHTML = 'Reply ' + (this.replyIsPersonal ? 'personally ' : '') +  'to: <em>' + message.username
+        + ': ' + message.text + '</em>'
+      reply.style.visibility = 'visible'
+      document.getElementById('cancel-reply')!.style.visibility = 'visible'
+      this.replyTo = id
+    }
+    document.getElementById('reply-in-group')!.addEventListener('click', () => {
+      this.replyIsPersonal = false
+      callback()
+    })
+    document.getElementById('reply-personally')!.addEventListener('click', () => {
+      this.replyIsPersonal = true
+      callback()
+    })
+    replyDialog.showModal()
   }
 
   public cancelReply() {
@@ -155,5 +170,19 @@ export class HomeComponent implements OnInit {
       dateString += ' UTC'
     }
     return new Date(dateString).toLocaleString()
+  }
+
+  public repliedToMe(message: Message): boolean {
+    let username = this.storageService.getToken().username
+    if (message.username === username) {
+      return false
+    }
+
+    let replyMessage = this.signalrService.data.get(this.selectedChat)!.find(m => m.id === message.replyTo)
+    if (replyMessage === undefined) {
+      return false
+    }
+
+    return replyMessage.username === username;
   }
 }

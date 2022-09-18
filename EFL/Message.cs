@@ -1,24 +1,24 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace ReenbitChatApp.EFL;
 
-public class Message
+public class Message : BaseEntity
 {
-    [Key]
-    public int MessageId { get; set; }
     public int UserId { get; set; }
     public int ReplyTo { get; set; }
-    
-    [ForeignKey("UserId"), JsonIgnore]
-    public User User { get; set; }
-    
+    public bool ReplyIsPersonal { get; set; }
+    public int ChatId { get; set; }
     public string Text { get; set; }
     public DateTime DateTime { get; set; }
+
+
+    [JsonIgnore]
+    public User User { get; set; }
     
-    public int ChatId { get; set; }
     
-    [ForeignKey("ChatId"), JsonIgnore]
+    [JsonIgnore]
     public Chat Chat { get; set; }
+    
+    [JsonIgnore]
+    public ICollection<MessageDeletedForUser> DeletedForUsers { get; set; }
 }

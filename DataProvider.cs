@@ -8,149 +8,228 @@ public static class DataProvider
 {
     public static void Provide(ModelBuilder modelBuilder)
     {
-        var hasher = new PasswordHasher<User>();
         var users = new List<User>
         {
-            new() {UserId = 1, Login = "mykytko", Password = "password1"},
-            new() {UserId = 2, Login = "lina", Password = "password2"},
-            new() {UserId = 3, Login = "vlad", Password = "password3"},
-            new() {UserId = 4, Login = "andriy", Password = "password4"}
+            new() {Id = 1, Login = "mykytko", Password = "password1"},
+            new() {Id = 2, Login = "lina", Password = "password2"},
+            new() {Id = 3, Login = "vlad", Password = "password3"},
+            new() {Id = 4, Login = "andriy", Password = "password4"}
         };
+        var hasher = new PasswordHasher<User>();
         users.ForEach(u => u.Password = hasher.HashPassword(u, u.Password));
         modelBuilder.Entity<User>().HasData(users);
         
         modelBuilder.Entity<Message>().HasData(
             new Message
             {
-                MessageId = 1,
+                Id = 1,
                 UserId = 1,
-                Text = "bomjour",
-                DateTime = DateTime.Now - TimeSpan.FromHours(24),
+                Text = "bonjour",
+                DateTime = DateTime.UtcNow - TimeSpan.FromHours(24),
                 ChatId = 1,
-                ReplyTo = -1
+                ReplyTo = -1,
+                ReplyIsPersonal = false
             },
-            new 
+            new Message
             {
-                MessageId = 2,
+                Id = 2,
                 UserId = 2,
                 Text = "yeah, hello",
-                DateTime = DateTime.Now - TimeSpan.FromHours(23),
+                DateTime = DateTime.UtcNow - TimeSpan.FromHours(23),
                 ChatId = 1,
-                ReplyTo = 1
+                ReplyTo = 1,
+                ReplyIsPersonal = false
             },
-            new
+            new Message
             {
-                MessageId = 3,
+                Id = 3,
                 UserId = 3,
                 Text = "how are you guys doing?",
-                DateTime = DateTime.Now - TimeSpan.FromHours(22),
+                DateTime = DateTime.UtcNow - TimeSpan.FromHours(22),
                 ChatId = 1,
-                ReplyTo = -1
+                ReplyTo = -1,
+                ReplyIsPersonal = false
             },
-            new
+            new Message
             {
-                MessageId = 4,
+                Id = 4,
                 UserId = 1,
                 Text = "pretty well",
-                DateTime = DateTime.Now - TimeSpan.FromHours(21),
+                DateTime = DateTime.UtcNow - TimeSpan.FromHours(21),
                 ChatId = 1,
-                ReplyTo = 3
+                ReplyTo = 3,
+                ReplyIsPersonal = false
             },
-            new
+            new Message
             {
-                MessageId = 5,
+                Id = 5,
                 UserId = 2,
                 Text = "same",
-                DateTime = DateTime.Now - TimeSpan.FromHours(20),
+                DateTime = DateTime.UtcNow - TimeSpan.FromHours(20),
                 ChatId = 1,
-                ReplyTo = 4
+                ReplyTo = 4,
+                ReplyIsPersonal = false
             },
-            new
+            new Message
             {
-                MessageId = 6,
+                Id = 14,
+                UserId = 2,
+                Text = "don't you think vlad is annoying?",
+                DateTime = DateTime.UtcNow - TimeSpan.FromHours(20) + TimeSpan.FromMinutes(10),
+                ChatId = 1,
+                ReplyTo = 4,
+                ReplyIsPersonal = true
+            },
+            new Message
+            {
+                Id = 15,
+                UserId = 1,
+                Text = "i do",
+                DateTime = DateTime.UtcNow - TimeSpan.FromHours(20) + TimeSpan.FromMinutes(20),
+                ChatId = 1,
+                ReplyTo = 14,
+                ReplyIsPersonal = true
+            },
+            new Message
+            {
+                Id = 6,
                 UserId = 3,
                 Text = "great!",
-                DateTime = DateTime.Now - TimeSpan.FromHours(19),
+                DateTime = DateTime.UtcNow - TimeSpan.FromHours(19),
                 ChatId = 1,
-                ReplyTo = -1
+                ReplyTo = -1,
+                ReplyIsPersonal = false
             },
-            new
+            new Message
             {
-                MessageId = 7,
+                Id = 7,
                 UserId = 3,
                 Text = "can you help me?",
-                DateTime = DateTime.Now - TimeSpan.FromMinutes(6),
+                DateTime = DateTime.UtcNow - TimeSpan.FromMinutes(6),
                 ChatId = 2,
-                ReplyTo = -1
+                ReplyTo = -1,
+                ReplyIsPersonal = false
             },
-            new
+            new Message
             {
-                MessageId = 8,
+                Id = 8,
                 UserId = 4,
                 Text = "sorry, i'm busy right now. maybe later",
-                DateTime = DateTime.Now - TimeSpan.FromMinutes(3),
+                DateTime = DateTime.UtcNow - TimeSpan.FromMinutes(3),
                 ChatId = 2,
-                ReplyTo = -1
+                ReplyTo = -1,
+                ReplyIsPersonal = false
             },
-            new
+            new Message
             {
-                MessageId = 9,
+                Id = 9,
                 UserId = 3,
                 Text = "it's urgent ;(",
-                DateTime = DateTime.Now - TimeSpan.FromMinutes(3),
+                DateTime = DateTime.UtcNow - TimeSpan.FromMinutes(3),
                 ChatId = 2,
-                ReplyTo = -1
+                ReplyTo = -1,
+                ReplyIsPersonal = false
             },
-            new
+            new Message
             {
-                MessageId = 10,
+                Id = 10,
                 UserId = 4,
                 Text = "fine, what's the problem?",
-                DateTime = DateTime.Now - TimeSpan.FromMinutes(1),
+                DateTime = DateTime.UtcNow - TimeSpan.FromMinutes(1),
                 ChatId = 2,
-                ReplyTo = -1
+                ReplyTo = -1,
+                ReplyIsPersonal = false
+            },
+            new Message
+            {
+                Id = 11,
+                UserId = 4,
+                Text = "Vlad is annoying.",
+                DateTime = DateTime.UtcNow - TimeSpan.FromHours(18),
+                ChatId = 3,
+                ReplyTo = -1,
+                ReplyIsPersonal = false
+            },
+            new Message
+            {
+                Id = 12,
+                UserId = 2,
+                Text = "+1",
+                DateTime = DateTime.UtcNow - TimeSpan.FromHours(17),
+                ChatId = 3,
+                ReplyTo = 11,
+                ReplyIsPersonal = false
+            },
+            new Message
+            {
+                Id = 13,
+                UserId = 1,
+                Text = "Finally we have a calm chat without him",
+                DateTime = DateTime.UtcNow - TimeSpan.FromHours(16),
+                ChatId = 3,
+                ReplyTo = -1,
+                ReplyIsPersonal = false
             });
         
         modelBuilder.Entity<MembersInChat>().HasData(
             new MembersInChat
             {
-                MembersInChatId = 1,
+                Id = 1,
                 ChatId = 1,
                 UserId = 1
             },
             new MembersInChat
             {
-                MembersInChatId = 2,
+                Id = 2,
                 ChatId = 1,
                 UserId = 2
             },
             new MembersInChat
             {
-                MembersInChatId = 3,
+                Id = 3,
                 ChatId = 1,
                 UserId = 3
             },
             new MembersInChat
             {
-                MembersInChatId = 4,
+                Id = 4,
                 ChatId = 1,
                 UserId = 4
             },
             new MembersInChat
             {
-                MembersInChatId = 5,
+                Id = 5,
                 ChatId = 2,
                 UserId = 3
             },
             new MembersInChat
             {
-                MembersInChatId = 6,
+                Id = 6,
                 ChatId = 2,
+                UserId = 4
+            },
+            new MembersInChat
+            {
+                Id = 7,
+                ChatId = 3,
+                UserId = 1
+            },
+            new MembersInChat
+            {
+                Id = 8,
+                ChatId = 3,
+                UserId = 2
+            },
+            new MembersInChat
+            {
+                Id = 9,
+                ChatId = 3,
                 UserId = 4
             });
 
         modelBuilder.Entity<Chat>().HasData(
-            new Chat {ChatId = 1, ChatName = "group chat"}, 
-            new Chat {ChatId = 2, ChatName = "personal chat"});
+            new Chat {Id = 1, ChatName = "group chat"},
+            new Chat {Id = 2, ChatName = "andriy;vlad"},
+            new Chat {Id = 3, ChatName = "group chat without vlad"});
     }
 }

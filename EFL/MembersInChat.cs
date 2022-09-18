@@ -1,18 +1,16 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ReenbitChatApp.EFL;
 
-public class MembersInChat
+public class MembersInChat : BaseEntity
 {
-    [Key]
-    public int MembersInChatId { get; set; }
     public int UserId { get; set; }
     public int ChatId { get; set; }
     
-    [ForeignKey("UserId")]
+    [JsonIgnore]
     public User User { get; set; }
     
-    [ForeignKey("ChatId")]
+    
+    [JsonIgnore]
     public Chat Chat { get; set; }
 }

@@ -82,6 +82,11 @@ export class SignalrService {
       console.log('received chats: ')
       console.log(data)
       data.forEach((block: Block) => {
+        if (block.isPersonal) {
+          let splits = block.chatName.split(';')
+          let myUsername = this.storageService.getToken().username
+          block.chatName = splits[0] == myUsername ? splits[1] : splits[0]
+        }
         this.data.set(block.chatName, [])
         this.canRequestMore.set(block.chatName, true)
         this.firstRequest.set(block.chatName, true)
@@ -124,11 +129,12 @@ export class SignalrService {
     this.hubConnection?.invoke('GetMessages', len, chat).catch(err => console.log(err))
   }
 
-  public sendMessage(chat: string, messageText: string, replyTo: number) {
+  public sendMessage(chat: string, messageText: string, replyTo: number, replyIsPersonal: boolean) {
     let index = 0
     while (index < messageText.length) {
       console.log('sending to chat ' + chat + ' in reply to #' + replyTo + ' message ' + messageText)
-      this.hubConnection?.invoke('BroadcastMessage', chat, messageText.slice(index, index + 4096), replyTo)
+      this.hubConnection?.invoke('BroadcastMessage', chat, messageText.slice(index, index + 4096),
+        replyTo, replyIsPersonal)
         .catch(err => console.log(err))
       replyTo = -1
       index += 4096
@@ -150,8 +156,8 @@ export class SignalrService {
       console.log('sending delete for all request for message #' + id + ' from chat ' + chatName)
       this.hubConnection?.invoke('BroadcastDelete', id).catch(err => console.log(err))
     } else {
-      console.log('deleting locally message #' + id + ' from chat ' + chatName)
-      this.deleteMessageFromArray(chatName, id)
+      console.log('sending local delete request for message #' + id + ' from chat ' + chatName)
+      this.hubConnection?.invoke('DeleteForMe', id).catch(err => console.log(err))
     }
   }
 }

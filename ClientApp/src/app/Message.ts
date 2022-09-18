@@ -4,6 +4,7 @@ interface Message {
   text: string
   date: string
   replyTo: number
+  replyIsPersonal: boolean
 }
 
 interface Block {

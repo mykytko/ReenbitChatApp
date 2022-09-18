@@ -32,17 +32,21 @@ var env = builder.Configuration.GetSection("EnvironmentKeys");
 Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", env["ClientId"]);
 Environment.SetEnvironmentVariable("AZURE_TENANT_ID", env["TenantId"]);
 Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", env["ClientSecret"]);
+
+// Get KeyVault access
 var client = new SecretClient(new Uri(vaultUri), new DefaultAzureCredential(new DefaultAzureCredentialOptions
 {
     ManagedIdentityClientId = clientId
 }), clientOptions);
+
+// Get connection string from KeyVault
 var connString = client.GetSecret("ChatDbConnection").Value.Value;
+
+// Initialize database (i.e. delete and create anew with initial data)
+// DbInitializer.Initialize(connString);
 
 // Set up DbContextPool
 builder.Services.AddDbContextPool<AppDbContext>(o => o.UseSqlServer(connString));
-
-// Initialize database
-// DbInitializer.Initialize(connString);
 
 builder.Services.AddSignalR().AddAzureSignalR(env["SignalrConnectionString"]);
 
@@ -84,7 +88,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 }
                 
                 var accessToken = context.Request.Query["access_token"];
-                Console.WriteLine("chat: " + accessToken);
                 context.Token = accessToken;
 
                 return Task.CompletedTask;
