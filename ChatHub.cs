@@ -277,11 +277,19 @@ public class ChatHub : Hub
             {
                 return;
             }
-            
-            await Clients.Group(replyMessage.User.Login)
-                .SendAsync("BroadcastMessage", chatName, broadcastedMessage);
-            await Clients.Client(Context.ConnectionId)
-                .SendAsync("BroadcastMessage", chatName, broadcastedMessage);
+
+            if (replyMessage.User.Login == Context.User!.Identity!.Name)
+            {
+                await Clients.Client(Context.ConnectionId)
+                    .SendAsync("BroadcastMessage", chatName, broadcastedMessage);
+            }
+            else
+            {
+                await Clients.Group(replyMessage.User.Login)
+                    .SendAsync("BroadcastMessage", chatName, broadcastedMessage);
+                await Clients.Client(Context.ConnectionId)
+                    .SendAsync("BroadcastMessage", chatName, broadcastedMessage);
+            }
         }
         else
         {
